@@ -1,8 +1,6 @@
-const user = {
-	name: "Innocent",
-	age: 42,
-	email: "innocentochonogor@gmail.com"
-}
-console.log(`My name is ${user.name}. I am ${user.age}years old. My email is ${user.email}.`);
-let jsonString = JSON.stringify(user);
-console.log(jsonString);
+const jsonString = '{"product":"Laptop","price":1200,"inStock":true}';
+const product = JSON.parse(jsonString);
+
+let stockStatus = product.inStock ? "in stock" : "out of stock";
+
+console.log(`The ${product.product} costs $${product.price} and is ${stockStatus}.`);
