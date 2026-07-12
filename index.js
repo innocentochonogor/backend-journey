@@ -1,17 +1,11 @@
-const http = require('http');
-const server = http.createServer((req, res) =>{
-	if (req.url === '/'){
-	res.writeHead(200, { "Content-Type": "text/plain" });
-	res.end("Welcome to the homepage");
-	} else if (req.url === '/about'){
-	res.writeHead(200, { "Content-Type": "text/plain" });
-	res.end("This is the about page!");
-	} else {
-	res.writeHead(404, { "Content-Type": "text/plain" });
-	res.end("Page not found");
-	};
+const express = require('express');
+const app = express();
+app.get('/', (req, res) => {
+	res.send("Welcome to the homepage!")
 });
-
-server.listen(3000, () => {
-	console.log('Server is running on http://localhost:3000');
+app.get('/about', (req, res) => {
+	res.send("This is the about page")
+});
+app.listen(3000, () => {
+	console.log("Server running on http://localhost:3000");
 });
