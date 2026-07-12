@@ -1,16 +1,17 @@
-const users = [
-  { id: 1, name: "Okonkwo", age: 59 },
-  { id: 2, name: "Amarachi", age: 14 },
-  { id: 3, name: "Smith", age: 36 }
-];
+const http = require('http');
+const server = http.createServer((req, res) =>{
+	if (req.url === '/'){
+	res.writeHead(200, { "Content-Type": "text/plain" });
+	res.end("Welcome to the homepage");
+	} else if (req.url === '/about'){
+	res.writeHead(200, { "Content-Type": "text/plain" });
+	res.end("This is the about page!");
+	} else {
+	res.writeHead(404, { "Content-Type": "text/plain" });
+	res.end("Page not found");
+	};
+});
 
-function getUserById(id){
-	const user = users.find(u => u.id === id)
-	if(user){
-		return user
-	} else{
-		return {error: "User not found"}
-	}
-}
-console.log(getUserById(2));
-console.log(getUserById(99));
+server.listen(3000, () => {
+	console.log('Server is running on http://localhost:3000');
+});
