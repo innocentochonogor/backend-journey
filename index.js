@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 app.use(express.json()); // middleware: parses incoming JSON request bodies
 
-const users = [
+let users = [
   { id: 1, name: "Okonkwo", age: 59 },
   { id: 2, name: "Amarachi", age: 14 },
   { id: 3, name: "Smith", age: 36 }
@@ -39,6 +39,31 @@ app.put('/users/:id', (req, res) => {
   if (index !== -1) {
     users[index] = { id: id, name: req.body.name, age: req.body.age };
     res.json(users[index]);
+  } else {
+    res.status(404).json({ error: "User not found" });
+  }
+});
+/*
+app.delete('/users/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const index = users.findIndex(u => u.id === id);
+
+  if (index !== -1) {
+    users.splice(index, 1); // removes 1 item at that position
+    res.json({ message: "User deleted" });
+  } else {
+    res.status(404).json({ error: "User not found" });
+  }
+});
+*/
+
+app.delete('/users/:id', (req, res) => {
+  const id = Number(req.params.id);
+  let user = users.find(u => u.id === id);
+
+  if (user) {
+    users = users.filter(u => u.id !== id);
+    res.json({ message: "User deleted" });
   } else {
     res.status(404).json({ error: "User not found" });
   }
