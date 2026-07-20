@@ -21,8 +21,7 @@ app.get('/users/:id', (req, res) => {
 	} else {
                res.status(404).json({error: "User not found"});
 	}
-});	
-
+});
 app.post('/users', (req, res) => {
 	const newUser = {
 		id: users.length + 1,
@@ -30,7 +29,19 @@ app.post('/users', (req, res) => {
 		age: req.body.age
 		};
 	users.push(newUser);
-	res.status(201).json(newUser);
+	es.status(201).json(newUser);
+});
+
+app.put('/users/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const index = users.findIndex(u => u.id === id);
+
+  if (index !== -1) {
+    users[index] = { id: id, name: req.body.name, age: req.body.age };
+    res.json(users[index]);
+  } else {
+    res.status(404).json({ error: "User not found" });
+  }
 });
 
 app.listen(3000, () => {
