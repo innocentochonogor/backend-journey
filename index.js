@@ -1,12 +1,75 @@
+const express = require('express');
 const { DatabaseSync } = require('node:sqlite');
+
+const app = express();
+app.use(express.json());
+
 const db = new DatabaseSync('users.db');
-// Create a table (only runs once effectively – "IF NOT EXISTS" prevent error on re-run)
+
 db.exec(`
-	CREATE TABLE IF NOT EXISTS users (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	name TEXT NOT NULL,
-	age INTEGER NOT NULL
-	)
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    age INTEGER NOT NULL
+  )
 `);
 
-console.log("Database and table ready");
+// GET all users
+app.get('/users', (req, res) => {
+  const rows = db.prepare('SELECT * FROM users').all();
+  res.json(rows);
+});
+
+// GET one user
+app.get('/users/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+
+  if (user) {
+    res.json(user);
+  } else {
+    res.status(404).json({ error: "User not found" });
+  }
+});
+
+// POST create user
+app.post('/users', (req, res) => {
+  const { name, age } = req.body;
+  const insert = db.prepare('INSERT INTO users (name, age) VALUES (?, ?)');
+  const result = insert.run(name, age);
+
+  const newUser = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
+  res.status(201).json(newUser);
+});
+
+// PUT update user
+app.put('/users/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const { name, age } = req.body;
+
+  const existing = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+  if (!existing) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  db.prepare('UPDATE users SET name = ?, age = ? WHERE id = ?').run(name, age, id);
+  const updated = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+  res.json(updated);
+});
+
+// DELETE user
+app.delete('/users/:id', (req, res) => {
+  const id = Number(req.params.id);
+
+  const existing = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+  if (!existing) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  db.prepare('DELETE FROM users WHERE id = ?').run(id);
+  res.json({ message: "User deleted" });
+});
+
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
+});
