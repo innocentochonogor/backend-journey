@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const { DatabaseSync } = require('node:sqlite');
 
@@ -70,6 +72,8 @@ app.delete('/users/:id', (req, res) => {
   res.json({ message: "User deleted" });
 });
 
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
