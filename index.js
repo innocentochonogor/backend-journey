@@ -59,6 +59,24 @@ app.post('/register', (req, res) => {
   res.status(201).json(newUser);
 });
 
+app.post('/login', (req, res) => {
+  const { name, password } = req.body;
+
+  const user = db.prepare('SELECT * FROM users WHERE name = ?').get(name);
+
+  if (!user) {
+    return res.status(401).json({ error: "Invalid credentials" });
+  }
+
+  const passwordMatches = bcrypt.compareSync(password, user.password);
+
+  if (!passwordMatches) {
+    return res.status(401).json({ error: "Invalid credentials" });
+  }
+
+  res.json({ message: "Login successful", userId: user.id });
+});
+
 // PUT update user
 app.put('/users/:id', (req, res) => {
   const id = Number(req.params.id);
