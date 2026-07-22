@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 require('dotenv').config();
 
 const bcrypt = require('bcryptjs');
@@ -74,7 +76,13 @@ app.post('/login', (req, res) => {
     return res.status(401).json({ error: "Invalid credentials" });
   }
 
-  res.json({ message: "Login successful", userId: user.id });
+  const token = jwt.sign(
+    { userId: user.id, name: user.name },
+    process.env.JWT_SECRET,
+    { expiresIn: '1h' }
+  );
+
+  res.json({ message: "Login successful", token });
 });
 
 // PUT update user
@@ -110,3 +118,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
