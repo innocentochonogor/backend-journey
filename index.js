@@ -1,5 +1,7 @@
 require('dotenv').config();
 
+const bcrypt = require('bcryptjs');
+
 const express = require('express');
 const { DatabaseSync } = require('node:sqlite');
 
@@ -12,20 +14,21 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    age INTEGER NOT NULL
+    age INTEGER NOT NULL,
+    password TEXT NOT NULL
   )
 `);
 
 // GET all users
 app.get('/users', (req, res) => {
-  const rows = db.prepare('SELECT * FROM users').all();
+  const rows = db.prepare('SELECT id, name, age FROM users').all();
   res.json(rows);
 });
 
 // GET one user
 app.get('/users/:id', (req, res) => {
   const id = Number(req.params.id);
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+  const user = db.prepare('SELECT id, name, age FROM users WHERE id = ?').get(id);
 
   if (user) {
     res.json(user);
@@ -41,6 +44,18 @@ app.post('/users', (req, res) => {
   const result = insert.run(name, age);
 
   const newUser = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
+  res.status(201).json(newUser);
+});
+
+app.post('/register', (req, res) => {
+  const { name, age, password } = req.body;
+
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
+  const insert = db.prepare('INSERT INTO users (name, age, password) VALUES (?, ?, ?)');
+  const result = insert.run(name, age, hashedPassword);
+
+  const newUser = db.prepare('SELECT id, name, age FROM users WHERE id = ?').get(result.lastInsertRowid);
   res.status(201).json(newUser);
 });
 
