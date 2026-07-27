@@ -1,5 +1,22 @@
 const jwt = require('jsonwebtoken');
 
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer <token>"
+
+  if (!token) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ error: "Invalid or expired token" });
+    }
+    req.user = decoded; // attach decoded payload (userId, name) to the request
+    next(); // move on to the actual route handler
+  });
+}
+
 require('dotenv').config();
 
 const bcrypt = require('bcryptjs');
@@ -37,6 +54,10 @@ app.get('/users/:id', (req, res) => {
   } else {
     res.status(404).json({ error: "User not found" });
   }
+});
+
+app.get('/profile', authenticateToken, (req, res) => {
+  res.json({ message: `Welcome ${req.user.name}, your user ID is ${req.user.userId}` });
 });
 
 // POST create user
