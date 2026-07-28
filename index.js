@@ -73,6 +73,18 @@ app.post('/users', (req, res) => {
 app.post('/register', (req, res) => {
   const { name, age, password } = req.body;
 
+  if (!name || name.trim() === '') {
+    return res.status(400).json({ error: "Name is required" });
+  }
+
+  if (!age || age < 0 || age > 120) {
+    return res.status(400).json({ error: "Age must be a valid number between 0 and 120" });
+  }
+
+  if (!password || password.length < 6) {
+    return res.status(400).json({ error: "Password must be at least 6 characters" });
+  }
+
   const hashedPassword = bcrypt.hashSync(password, 10);
 
   const insert = db.prepare('INSERT INTO users (name, age, password) VALUES (?, ?, ?)');
