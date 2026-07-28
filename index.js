@@ -146,6 +146,11 @@ app.delete('/users/:id', (req, res) => {
   res.json({ message: "User deleted" });
 });
 
+app.use((err, req, res, next) => {
+  console.error(err.stack); // Log the full error for yourself (the developer)
+  res.status(500).json({ error: "Something went wrong on our end" });
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
